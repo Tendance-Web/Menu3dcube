@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Cube - Navigation Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <!-- Lucide Icons (via unpkg/lucide-react isn't straightforward in vanilla JS without build step, using simple SVG replacement for standalone) -->
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #e8e4df;
+            margin: 0;
+            font-family: sans-serif;
+            overflow: hidden; /* Prevent scrollbars during rotations */
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { motion } = window.Motion; // Framer Motion global object
+
+        // Icons components (simplified SVG versions for standalone HTML)
+        const BriefcaseIcon = ({ size = 24, className = "", strokeWidth = 2 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+        );
+
+        const UserIcon = ({ size = 24, className = "", strokeWidth = 2 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+        );
+
+        const MailIcon = ({ size = 24, className = "", strokeWidth = 2 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+        );
+
+        const SECTIONS = [
+            { id: 'projets', label: 'PROJETS', color: '#0077b6', icon: BriefcaseIcon },
+            { id: 'about', label: 'À PROPOS', color: '#0096c7', icon: UserIcon },
+            { id: 'contact', label: 'CONTACT', color: '#90e0ef', icon: MailIcon },
+        ];
+
+        const SingleCube = ({ section, styleVariant }) => {
+            const isPixel = styleVariant === 'pixel';
+            const isGlass = styleVariant === 'glass';
+
+            const faces = [
+                { rotateY: 0, translateZ: 32 },
+                { rotateY: 180, translateZ: 32 },
+                { rotateY: 90, translateZ: 32 },
+                { rotateY: -90, translateZ: 32 },
+                { rotateX: 90, translateZ: 32 },
+                { rotateX: -90, translateZ: 32 },
+            ];
+
+            const Icon = section.icon;
+
+            return (
+                <motion.div
+                    className="relative w-16 h-16 cursor-pointer group"
+                    whileHover={{ scale: 1.1, rotateX: 15, rotateY: 15 }}
+                    style={{ transformStyle: 'preserve-3d' }}
+                >
+                    <motion.div
+                        className="w-full h-full relative"
+                        style={{ transformStyle: 'preserve-3d' }}
+                        animate={{ rotateY: [0, 360] }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    >
+                        {/* Inner Icon (Floating in center) */}
+                        <div 
+                            className="absolute inset-0 flex items-center justify-center" 
+                            style={{ transformStyle: 'preserve-3d' }}
+                        >
+                            {/* Render icon twice for 3D effect */}
+                            <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'rotateY(0deg) translateZ(0px)' }}>
+                                <Icon 
+                                    size={28} 
+                                    className={isPixel ? 'text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.3)]' : 'text-white drop-shadow-md'} 
+                                    strokeWidth={2.5}
+                                />
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'rotateY(90deg) translateZ(0px)' }}>
+                                <Icon 
+                                    size={28} 
+                                    className={isPixel ? 'text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.3)]' : 'text-white drop-shadow-md'} 
+                                    strokeWidth={2.5}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Cube Faces */}
+                        {faces.map((face, i) => (
+                            <div
+                                key={i}
+                                className={`absolute inset-0 border ${
+                                    isPixel ? 'border-white/40' : isGlass ? 'border-white/30' : 'border-white/20'
+                                }`}
+                                style={{
+                                    backgroundColor: isGlass ? `${section.color}40` : `${section.color}80`,
+                                    transform: `rotateY(${face.rotateY || 0}deg) rotateX(${face.rotateX || 0}deg) translateZ(${face.translateZ}px)`,
+                                    backfaceVisibility: 'visible',
+                                    boxShadow: isPixel 
+                                        ? 'inset 0 0 0 2px rgba(255,255,255,0.1)' 
+                                        : isGlass 
+                                            ? 'backdrop-blur-[1px]' 
+                                            : 'none',
+                                }}
+                            />
+                        ))}
+                    </motion.div>
+                    
+                    {/* Label */}
+                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none">
+                        <span className={`text-xs font-bold tracking-widest ${isPixel ? 'font-mono' : 'font-sans'} text-neutral-600 group-hover:text-blue-600 transition-colors`}>
+                            {section.label}
+                        </span>
+                    </div>
+                </motion.div>
+            );
+        };
+
+        const MultiCubeNav = () => {
+            const [currentLayout, setCurrentLayout] = useState('grid');
+            const [currentStyle, setCurrentStyle] = useState('pixel');
+
+            const getLayoutClasses = () => {
+                switch (currentLayout) {
+                    case 'grid':
+                        return 'grid grid-cols-3 gap-20';
+                    case 'line':
+                        return 'flex flex-row gap-24';
+                    case 'circle':
+                        return 'relative h-[300px] w-[300px]';
+                    default:
+                        return 'grid grid-cols-3 gap-20';
+                }
+            };
+
+            const ControlButton = ({ label, active, onClick }) => (
+                <button 
+                    onClick={onClick} 
+                    className={`text-[10px] font-bold tracking-wider ${active ? 'text-blue-600' : 'text-neutral-400 hover:text-neutral-600'}`}
+                >
+                    {label}
+                </button>
+            );
+
+            return (
+                <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-16">
+                    
+                    {/* Controls */}
+                    <div className="flex flex-col gap-4 items-center z-10 bg-white/50 p-4 rounded-xl backdrop-blur-sm border border-white/50 shadow-sm fixed top-8">
+                        <div className="flex gap-4">
+                            <span className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-widest">Disposition</span>
+                            <ControlButton label="GRILLE" active={currentLayout === 'grid'} onClick={() => setCurrentLayout('grid')} />
+                            <ControlButton label="CERCLE" active={currentLayout === 'circle'} onClick={() => setCurrentLayout('circle')} />
+                            <ControlButton label="LIGNE" active={currentLayout === 'line'} onClick={() => setCurrentLayout('line')} />
+                        </div>
+                        <div className="w-full h-px bg-neutral-200/50" />
+                        <div className="flex gap-4">
+                            <span className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-widest">Style</span>
+                            <ControlButton label="PIXEL" active={currentStyle === 'pixel'} onClick={() => setCurrentStyle('pixel')} />
+                            <ControlButton label="MINIMAL" active={currentStyle === 'minimal'} onClick={() => setCurrentStyle('minimal')} />
+                            <ControlButton label="GLASS" active={currentStyle === 'glass'} onClick={() => setCurrentStyle('glass')} />
+                        </div>
+                    </div>
+
+                    {/* Container */}
+                    <div className={`perspective-[1000px] transition-all duration-500 ${currentLayout === 'circle' ? 'flex items-center justify-center' : ''}`} style={{ marginTop: '80px' }}>
+                        <div className={getLayoutClasses()}>
+                            {SECTIONS.map((section, index) => {
+                                if (currentLayout === 'circle') {
+                                    const angle = (index / SECTIONS.length) * 360;
+                                    const radius = 100;
+                                    return (
+                                        <div
+                                            key={section.id}
+                                            className="absolute top-1/2 left-1/2"
+                                            style={{
+                                                transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`,
+                                                marginTop: -32,
+                                                marginLeft: -32,
+                                            }}
+                                        >
+                                            <SingleCube section={section} styleVariant={currentStyle} />
+                                        </div>
+                                    );
+                                }
+                                return (
+                                    <div key={section.id}>
+                                        <SingleCube section={section} styleVariant={currentStyle} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MultiCubeNav />);
+    </script>
+</body>
+</html>
