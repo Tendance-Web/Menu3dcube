@@ -1,7 +1,7 @@
 
-  # Créer visuels pour portfolio
+  # Menu3dCube
 
-  This is a code bundle for Créer visuels pour portfolio. The original project is available at https://www.figma.com/design/Z5mQUe1nHfL76W5U1T92Rw/Cr%C3%A9er-visuels-pour-portfolio.
+  This is a code bundle for Menu3dCube. The original project is available at https://www.figma.com/design/Z5mQUe1nHfL76W5U1T92Rw/Menu3dCube.
 
   ## Running the code
 
