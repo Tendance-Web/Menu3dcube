@@ -27,8 +27,16 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
-        const { motion } = window.Motion; // Framer Motion global object
+        const { useState, useEffect } = React;
+        
+        // Ensure Framer Motion is loaded properly
+        const Motion = window.Motion || window.framerMotion;
+        const motion = Motion ? Motion.motion : null;
+
+        // Fallback if motion is not loaded
+        if (!motion) {
+            console.error("Framer Motion failed to load");
+        }
 
         // Icons components (simplified SVG versions for standalone HTML)
         const BriefcaseIcon = ({ size = 24, className = "", strokeWidth = 2 }) => (
